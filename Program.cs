@@ -1,7 +1,22 @@
 ﻿// Max Sultan, Nov 6 2025, Lab 9: Maze 2
 
-// (Load from file) Within your Main method, create a string array variable called mapRows and use File.ReadAllLines to load the contents of map.txt into your variable. Clear the screen, and then write a loop to print out the rows of the map to the screen. (Make sure the program works and commit the changes to your repo.)
+void Main()
+{
+    Console.Title = "Maze Game";
+    Console.Clear();
+    string[] mapRows = File.ReadAllLines("./maze.txt");
+    foreach(string row in mapRows)
+        Console.WriteLine(row);
+    Dictionary<string, int> mapBounds = new Dictionary<string, int>
+    {
+        {"left", 0},
+        {"right", mapRows[0].Length - 1},
+        {"top", 0},
+        {"bottom", mapRows.Length - 1},
+    };
+}
 
+Main();
 // IF YOUR TERMINAL ISN'T TALL ENOUGH TO PRINT THE MAP YOUR PROGRAM WILL CRASH
 
 // (Basic User controls)

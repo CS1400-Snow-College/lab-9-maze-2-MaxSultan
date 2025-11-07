@@ -1,0 +1,15 @@
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/bin/Debug/net8.0/lab-9-maze-2-MaxSultan
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/bin/Debug/net8.0/lab-9-maze-2-MaxSultan.deps.json
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/bin/Debug/net8.0/lab-9-maze-2-MaxSultan.runtimeconfig.json
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/bin/Debug/net8.0/lab-9-maze-2-MaxSultan.dll
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/bin/Debug/net8.0/lab-9-maze-2-MaxSultan.pdb
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.GeneratedMSBuildEditorConfig.editorconfig
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.AssemblyInfoInputs.cache
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.AssemblyInfo.cs
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.csproj.CoreCompileInputs.cache
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.sourcelink.json
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.dll
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/refint/lab-9-maze-2-MaxSultan.dll
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.pdb
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/lab-9-maze-2-MaxSultan.genruntimeconfig.cache
+/Users/maxwellsultan/snow_college_programming/lab-9-maze-2-MaxSultan/obj/Debug/net8.0/ref/lab-9-maze-2-MaxSultan.dll
