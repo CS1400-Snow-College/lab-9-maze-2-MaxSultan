@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("lab-9-maze-2-MaxSultan")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+61b4f4a09a6a67a4428e4c502d3fe36908361934")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73cbf71e865f1e47afd9ba8b166401f1b3908951")]
 [assembly: System.Reflection.AssemblyProductAttribute("lab-9-maze-2-MaxSultan")]
 [assembly: System.Reflection.AssemblyTitleAttribute("lab-9-maze-2-MaxSultan")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

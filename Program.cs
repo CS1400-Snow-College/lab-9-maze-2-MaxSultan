@@ -7,6 +7,7 @@ void Main()
     string[] mapRows = File.ReadAllLines("./maze.txt");
     foreach(string row in mapRows)
         Console.WriteLine(row);
+
     Dictionary<string, int> mapBounds = new Dictionary<string, int>
     {
         {"left", 0},
@@ -14,6 +15,39 @@ void Main()
         {"top", 0},
         {"bottom", mapRows.Length - 1},
     };
+
+    Console.SetCursorPosition(mapBounds["left"], mapBounds["top"]);
+
+    do {
+        ConsoleKey inputKey = Console.ReadKey(true).Key;
+        (int leftDelta, int topDelta) proposedPosition = (Console.CursorLeft, Console.CursorTop);
+        if(inputKey == ConsoleKey.Escape) 
+            break;
+
+        if (inputKey == ConsoleKey.UpArrow) 
+            proposedPosition.topDelta--;
+        else if (inputKey == ConsoleKey.DownArrow)
+            proposedPosition.topDelta++;
+        else if(inputKey == ConsoleKey.LeftArrow) 
+            proposedPosition.leftDelta--;
+        else if (inputKey == ConsoleKey.RightArrow)	
+            proposedPosition.leftDelta++;
+        
+        bool withinMap = proposedPosition.leftDelta > mapBounds["left"] && proposedPosition.leftDelta <= mapBounds["right"] && proposedPosition.topDelta >= mapBounds["top"] && proposedPosition.topDelta <= mapBounds["bottom"];
+        if (!withinMap) continue;
+        bool notProjectedBlockedSpace = mapRows[proposedPosition.topDelta][proposedPosition.leftDelta] != '*';
+        if (!notProjectedBlockedSpace) continue;
+        
+        Console.SetCursorPosition(proposedPosition.leftDelta, proposedPosition.topDelta);
+
+        bool playerWon = mapRows[proposedPosition.topDelta][proposedPosition.leftDelta] == '#';
+        if (playerWon){
+            Console.Clear();
+            Console.WriteLine("YOU WON!");
+            break;
+        }
+
+    } while(true);
 }
 
 Main();
