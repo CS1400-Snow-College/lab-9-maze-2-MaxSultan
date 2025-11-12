@@ -25,6 +25,10 @@ void Main()
         {"gate", '|'}
     };
 
+    int score = 0;
+    Console.SetCursorPosition(0, 21);
+    Console.WriteLine($"Score: {score}");
+
     // Put the cursor (player) inside the map so arrow keys move the player on the map
     Console.SetCursorPosition(mapBounds["left"] + 1, mapBounds["top"] + 1);
     Character BadGuy1 = new Character((14, 5), mapLegend["badGuy"]);
@@ -34,6 +38,7 @@ void Main()
     do {
         ConsoleKey inputKey = Console.ReadKey(true).Key;
         (int leftDelta, int topDelta) proposedPosition = (Console.CursorLeft, Console.CursorTop);
+        (int leftDelta, int topDelta) currentPlayerPosition = (Console.CursorLeft, Console.CursorTop);
         if(inputKey == ConsoleKey.Escape) break;
         if (inputKey == ConsoleKey.UpArrow) proposedPosition.topDelta--;
         else if (inputKey == ConsoleKey.DownArrow) proposedPosition.topDelta++;
@@ -47,8 +52,7 @@ void Main()
         
     bool badGuyCollision = false;
 
-    // record player's current cursor position before bad guys move
-    (int leftDelta, int topDelta) currentPlayerPosition = (Console.CursorLeft, Console.CursorTop);
+    
 
     foreach(Character BadGuy in BadGuys) {
             while(true) {
@@ -69,15 +73,19 @@ void Main()
 
         Console.SetCursorPosition(proposedPosition.leftDelta, proposedPosition.topDelta);
 
-        foreach(Character BadGuy in BadGuys) {
-            if (BadGuy.Position == proposedPosition) badGuyCollision = true;
-            if (BadGuy.Position == currentPlayerPosition) badGuyCollision = true;
-        }
+        foreach(Character BadGuy in BadGuys)
+            if (BadGuy.Position == currentPlayerPosition) {
+                Console.Clear();
+                Console.WriteLine("You lost");
+                return;
+            }
         
-        if (badGuyCollision) {
-            Console.Clear();
-            Console.WriteLine("You lost");
-            break;
+        bool coinCollision = mapRows[proposedPosition.topDelta][proposedPosition.leftDelta] == mapLegend["coin"];
+        if(coinCollision) {
+            score += 100;
+            Console.Write(' ');
+            Console.SetCursorPosition(0, 21);
+            Console.WriteLine($"Score: {score}");
         }
         
         bool playerWon = mapRows[proposedPosition.topDelta][proposedPosition.leftDelta] == mapLegend["win"];
@@ -87,6 +95,8 @@ void Main()
             break;
         }
 
+        Console.SetCursorPosition(proposedPosition.leftDelta, proposedPosition.topDelta);
+
     } while(true);
 }
 
@@ -95,8 +105,6 @@ Main();
 // (Collect Coins) You will notice on the map there are 10 '^' symbols. These are coins. Each time you move over the top of one of these, the 'coin' should disappear and your score will go up by 100 points. You should display your score somewhere on the game.
 // (Open the gate) You will notice you cannot get to the treasure in the middle. When you have collected all 10 coins (or 1000 points whichever you want to monitor) you will make an opening appear in the center square by 'opening' the door (erasing the characters), thus allowing a path to the treasure in the middle. Just for fun we'll say '$' are gems worth 200 points each.
 // (Detect the win) Break out of the loop, clear the screen, and print a congratulatory message if the current cell = "#" Be sure to tell the gamer their score and their time in the maze. (Make sure the program works and commit the changes to your repo.)
-
-// (Enforce walls) Update your TryMove code to additionally enforce that no move is taken if it would land the player on a '*' cell. (Make sure the program works and commit the changes to your repo.)
 
 // (optional) (More Features) (5 bonus points each)
 // Add something else interesting to the game.
@@ -123,6 +131,7 @@ public class Character {
     public void Move((int leftDelta, int topDelta) newPosition){
         Console.SetCursorPosition(Position.leftDelta, Position.topDelta);
         if (Symbol == '%') {
+
             Console.Write(' ');
         }
         Position = newPosition;
