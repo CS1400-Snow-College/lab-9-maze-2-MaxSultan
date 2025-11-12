@@ -1,38 +1,23 @@
 ﻿// Max Sultan, Nov 6 2025, Lab 9: Maze 2
-void Main()
-{
-    Console.Title = "Maze Game";
-    Console.Clear();
-    string[] mapRows = File.ReadAllLines("./maze.txt");
+
+void ProcessNextTick(string[] mapRows, (int leftDelta, int topDelta) proposedPosition) {
+    Console.SetCursorPosition(0,0);
     foreach(string row in mapRows)
         Console.WriteLine(row);
+    Console.SetCursorPosition(proposedPosition.leftDelta, proposedPosition.topDelta);
+}
 
-    Dictionary<string, int> mapBounds = new Dictionary<string, int>
-    {
-        {"left", 0},
-        {"right", mapRows[0].Length - 1},
-        {"top", 0},
-        {"bottom", mapRows.Length - 1},
-    };
+void Main()
+{
+    Game Game = new Game();
+    Map Map = new Map();
 
-    Dictionary<string, char> mapLegend = new Dictionary<string, char>
-    {
-        {"win", '#'},
-        {"wall", '*'},
-        {"badGuy", '%'},
-        {"coin", '^'},
-        {"gems", '$'},
-        {"gate", '|'}
-    };
-
-    int score = 0;
-    Console.SetCursorPosition(0, 21);
-    Console.WriteLine($"Score: {score}");
+    Game.PrintScore(Map.Rows.Length);
 
     // Put the cursor (player) inside the map so arrow keys move the player on the map
-    Console.SetCursorPosition(mapBounds["left"] + 1, mapBounds["top"] + 1);
-    Character BadGuy1 = new Character((14, 5), mapLegend["badGuy"]);
-    Character BadGuy2 = new Character((38, 15), mapLegend["badGuy"]);
+    Console.SetCursorPosition(Map.Bounds["left"] + 1, Map.Bounds["top"] + 1);
+    Character BadGuy1 = new Character((14, 5));
+    Character BadGuy2 = new Character((38, 15));
     List<Character> BadGuys = new List<Character> { BadGuy1, BadGuy2 };
 
     do {
@@ -45,33 +30,24 @@ void Main()
         else if(inputKey == ConsoleKey.LeftArrow) proposedPosition.leftDelta--;
         else if (inputKey == ConsoleKey.RightArrow)	proposedPosition.leftDelta++;
         
-        bool withinMap = proposedPosition.leftDelta >= mapBounds["left"] && proposedPosition.leftDelta <= mapBounds["right"] && proposedPosition.topDelta >= mapBounds["top"] && proposedPosition.topDelta <= mapBounds["bottom"];
+        bool withinMap = proposedPosition.leftDelta >= Map.Bounds["left"] && proposedPosition.leftDelta <= Map.Bounds["right"] && proposedPosition.topDelta >= Map.Bounds["top"] && proposedPosition.topDelta <= Map.Bounds["bottom"];
         if (!withinMap) continue;
-        bool notProjectedBlockedSpace = !(new List<char> {mapLegend["wall"], mapLegend["gate"]}.Contains(mapRows[proposedPosition.topDelta][proposedPosition.leftDelta]));
+        bool notProjectedBlockedSpace = !(new List<char> {Map.Legend["wall"], Map.Legend["gate"]}.Contains(Map.Rows[proposedPosition.topDelta][proposedPosition.leftDelta]));
         if (!notProjectedBlockedSpace) continue;
         
-    bool badGuyCollision = false;
-
-    
-
-    foreach(Character BadGuy in BadGuys) {
+        foreach(Character BadGuy in BadGuys) {
             while(true) {
-                int topDeltaOffset = 1 * (BadGuy.Up ? -1 : 1);
-                if(BadGuy.CheckMove(
-                    (BadGuy.Position.leftDelta,BadGuy.Position.topDelta + topDeltaOffset), 
-                    mapRows, 
-                    mapLegend, 
-                    mapBounds)
-                ){
-                    BadGuy.Move((BadGuy.Position.leftDelta, BadGuy.Position.topDelta + topDeltaOffset));
+                int leftDeltaOffset = 1 * (BadGuy.Left ? -1 : 1);
+                (int leftDelta, int topDelta) newPosition = (BadGuy.Position.leftDelta + leftDeltaOffset, BadGuy.Position.topDelta);
+                if(BadGuy.CheckMove(newPosition, Map.Rows, Map.Legend, Map.Bounds)){
+                    Map.UpdateCharacter(Map.Legend["badGuy"], BadGuy.Position, newPosition);
+                    BadGuy.Move(newPosition);
                     break;
                 } 
                 
-                BadGuy.Up = !BadGuy.Up;
+                BadGuy.Left = !BadGuy.Left;
             }
         }
-
-        Console.SetCursorPosition(proposedPosition.leftDelta, proposedPosition.topDelta);
 
         foreach(Character BadGuy in BadGuys)
             if (BadGuy.Position == currentPlayerPosition) {
@@ -79,45 +55,50 @@ void Main()
                 Console.WriteLine("You lost");
                 return;
             }
-        
-        bool coinCollision = mapRows[proposedPosition.topDelta][proposedPosition.leftDelta] == mapLegend["coin"];
-        if(coinCollision) {
-            score += 100;
-            Console.Write(' ');
-            Console.SetCursorPosition(0, 21);
-            Console.WriteLine($"Score: {score}");
+
+        bool gemColision = Map.Rows[proposedPosition.topDelta][proposedPosition.leftDelta] == Map.Legend["gem"];
+
+        if(gemColision) {
+            Game.Score += 200;
+            Map.ClearMapSpace(proposedPosition);
+            Game.PrintScore(Map.Rows.Length);
         }
         
-        bool playerWon = mapRows[proposedPosition.topDelta][proposedPosition.leftDelta] == mapLegend["win"];
+        bool coinCollision = Map.Rows[proposedPosition.topDelta][proposedPosition.leftDelta] == Map.Legend["coin"];
+        if(coinCollision) {
+            Game.Score += 100;
+            Map.ClearMapSpace(proposedPosition);
+            Game.PrintScore(Map.Rows.Length);
+
+            if(Game.Score == 1000)
+                Map.OpenGate();
+        }
+        
+        bool playerWon = Map.Rows[proposedPosition.topDelta][proposedPosition.leftDelta] == Map.Legend["win"];
         if (playerWon){
             Console.Clear();
             Console.WriteLine("YOU WON!");
             break;
         }
 
-        Console.SetCursorPosition(proposedPosition.leftDelta, proposedPosition.topDelta);
+        ProcessNextTick(Map.Rows, proposedPosition);
 
     } while(true);
 }
 
 Main();
 
-// (Collect Coins) You will notice on the map there are 10 '^' symbols. These are coins. Each time you move over the top of one of these, the 'coin' should disappear and your score will go up by 100 points. You should display your score somewhere on the game.
-// (Open the gate) You will notice you cannot get to the treasure in the middle. When you have collected all 10 coins (or 1000 points whichever you want to monitor) you will make an opening appear in the center square by 'opening' the door (erasing the characters), thus allowing a path to the treasure in the middle. Just for fun we'll say '$' are gems worth 200 points each.
 // (Detect the win) Break out of the loop, clear the screen, and print a congratulatory message if the current cell = "#" Be sure to tell the gamer their score and their time in the maze. (Make sure the program works and commit the changes to your repo.)
-
-// (optional) (More Features) (5 bonus points each)
-// Add something else interesting to the game.
 
 public class Character {
     public (int leftDelta, int topDelta) Position { get; set; }
     public char Symbol { get; }
-    public bool Up { get; set; }
-    public Character((int leftDelta, int topDelta) position, char symbol) 
+    public bool Left { get; set; }
+    public Character((int leftDelta, int topDelta) position) 
     {
         Position = position;
-        Symbol = symbol;
-        Up = true;
+        Symbol = '%';
+        Left = true;
     }
 
     public bool CheckMove((int leftDelta, int topDelta) newPosition, string[] mapRows, Dictionary<string, char> mapLegend, Dictionary<string, int> mapBounds){
@@ -129,15 +110,66 @@ public class Character {
     }
 
     public void Move((int leftDelta, int topDelta) newPosition){
-        Console.SetCursorPosition(Position.leftDelta, Position.topDelta);
-        if (Symbol == '%') {
-
-            Console.Write(' ');
-        }
         Position = newPosition;
-        Console.SetCursorPosition(newPosition.leftDelta, newPosition.topDelta);
-        if (Symbol == '%') {
-            Console.Write('%');
-        }
     }
+}
+
+public class Map {
+    public string[] Rows { get; set; }
+    public Dictionary<string, char> Legend { get; }
+    public Dictionary<string, int> Bounds { get; }
+
+    public Map(){
+        Rows = File.ReadAllLines("./maze.txt");
+        Legend = new Dictionary<string, char>
+        {
+            {"win", '#'},
+            {"wall", '*'},
+            {"badGuy", '%'},
+            {"coin", '^'},
+            {"gem", '$'},
+            {"gate", '|'}
+        };
+        Bounds = new Dictionary<string, int>
+        {
+            {"left", 0},
+            {"right", Rows[0].Length - 1},
+            {"top", 0},
+            {"bottom", Rows.Length - 1},
+        };
+            Console.SetCursorPosition(0,0);
+            foreach(string row in Rows)
+                Console.WriteLine(row);
+    }
+
+    public void ClearMapSpace((int leftDelta, int topDelta) position) {
+        Rows = Rows.Select((row, idx) => idx == position.topDelta ? row.Remove(position.leftDelta, 1).Insert(position.leftDelta, " ") : row).ToArray();
+    }
+
+    public void OpenGate(){
+        Rows = Rows.Select(row => row.Replace('|', ' ')).ToArray();
+    }
+
+    public void UpdateCharacter(char character, (int leftDelta, int topDelta) oldPosition, (int leftDelta, int topDelta) newPosition){
+        Rows = Rows
+        .Select((row, idx) => idx == oldPosition.topDelta ? row.Remove(oldPosition.leftDelta, 1).Insert(oldPosition.leftDelta, " ") : row)
+        .ToArray()
+        .Select((row, idx) => idx == newPosition.topDelta ? row.Remove(newPosition.leftDelta, 1).Insert(newPosition.leftDelta, $"{character}") : row)
+        .ToArray();
+    }
+}
+
+public class Game {
+    public int Score { get; set; }
+    public Game(){
+        Score = 0;
+        Console.Title = "Maze Game";
+        Console.Clear();
+    }
+
+    public void PrintScore(int mapRowsEnd) {
+        Console.SetCursorPosition(0, mapRowsEnd);
+        Console.WriteLine($"Score: {Score}");
+    }
+
 }
