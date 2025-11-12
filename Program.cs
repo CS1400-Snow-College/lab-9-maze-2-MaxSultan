@@ -1,24 +1,22 @@
 ﻿// Max Sultan, Nov 6 2025, Lab 9: Maze 2
 
-void ProcessNextTick(string[] mapRows, (int leftDelta, int topDelta) proposedPosition) {
+void ProcessNextTick(string[] mapRows, (int leftDelta, int topDelta) position) {
     Console.SetCursorPosition(0,0);
     foreach(string row in mapRows)
         Console.WriteLine(row);
-    Console.SetCursorPosition(proposedPosition.leftDelta, proposedPosition.topDelta);
+    Console.SetCursorPosition(position.leftDelta, position.topDelta);
 }
 
 void Main()
 {
     Game Game = new Game();
     Map Map = new Map();
-
     Game.PrintScore(Map.Rows.Length);
-
-    // Put the cursor (player) inside the map so arrow keys move the player on the map
-    Console.SetCursorPosition(Map.Bounds["left"] + 1, Map.Bounds["top"] + 1);
     Character BadGuy1 = new Character((14, 5));
     Character BadGuy2 = new Character((38, 15));
     List<Character> BadGuys = new List<Character> { BadGuy1, BadGuy2 };
+
+    Console.SetCursorPosition(Map.Bounds["left"] + 1, Map.Bounds["top"] + 1);
 
     do {
         ConsoleKey inputKey = Console.ReadKey(true).Key;
@@ -44,20 +42,17 @@ void Main()
                     BadGuy.Move(newPosition);
                     break;
                 } 
-                
                 BadGuy.Left = !BadGuy.Left;
             }
         }
 
         foreach(Character BadGuy in BadGuys)
-            if (BadGuy.Position == currentPlayerPosition) {
-                Console.Clear();
-                Console.WriteLine("You lost");
-                return;
-            }
+            if (BadGuy.Position == currentPlayerPosition) Game.EndGame("You lost");
+        
+        bool playerWon = Map.Rows[proposedPosition.topDelta][proposedPosition.leftDelta] == Map.Legend["win"];
+        if (playerWon) Game.EndGame("YOU WON!");
 
         bool gemColision = Map.Rows[proposedPosition.topDelta][proposedPosition.leftDelta] == Map.Legend["gem"];
-
         if(gemColision) {
             Game.Score += 200;
             Map.ClearMapSpace(proposedPosition);
@@ -70,25 +65,16 @@ void Main()
             Map.ClearMapSpace(proposedPosition);
             Game.PrintScore(Map.Rows.Length);
 
-            if(Game.Score == 1000)
-                Map.OpenGate();
-        }
-        
-        bool playerWon = Map.Rows[proposedPosition.topDelta][proposedPosition.leftDelta] == Map.Legend["win"];
-        if (playerWon){
-            Console.Clear();
-            Console.WriteLine("YOU WON!");
-            break;
+            if(Game.Score == 1000) Map.OpenGate();
         }
 
-        ProcessNextTick(Map.Rows, proposedPosition);
+        if (Game.Continue)
+            ProcessNextTick(Map.Rows, proposedPosition);
 
-    } while(true);
+    } while(Game.Continue);
 }
 
 Main();
-
-// (Detect the win) Break out of the loop, clear the screen, and print a congratulatory message if the current cell = "#" Be sure to tell the gamer their score and their time in the maze. (Make sure the program works and commit the changes to your repo.)
 
 public class Character {
     public (int leftDelta, int topDelta) Position { get; set; }
@@ -161,8 +147,12 @@ public class Map {
 
 public class Game {
     public int Score { get; set; }
+    public bool Continue { get; set; }
+    private DateTime StartTime { get; set; }
     public Game(){
         Score = 0;
+        Continue = true;
+        StartTime = DateTime.Now;
         Console.Title = "Maze Game";
         Console.Clear();
     }
@@ -172,4 +162,12 @@ public class Game {
         Console.WriteLine($"Score: {Score}");
     }
 
+    public void EndGame(string message){
+        DateTime endTime = DateTime.Now;
+        Continue = false;
+        Console.Clear();
+        Console.WriteLine(message);
+        TimeSpan gameDuration = endTime - StartTime;
+        Console.WriteLine($"You scored {Score} points in {gameDuration.Seconds} seconds");
+    }
 }
